@@ -126,7 +126,7 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(context, "Level: 1", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Level 1", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -231,7 +231,7 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(context, "Level: " + String.valueOf(count / 5 + 1), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Level " + String.valueOf(count / 5 + 1), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
