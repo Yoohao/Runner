@@ -62,7 +62,7 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
     private Map map;
     private Axis axis;
 
-
+    private boolean ANIMATE = false;
 
     private float x = 0;
     private float y = 0;
@@ -94,23 +94,29 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
         r = g = b = 1f;
     }
 
-    private void setFanColor() {
+    private void setFanColor_ENABLE() {
         r = 62f / 255f;
         g = 166f / 255f;
         b = 248f / 255f;
+    }
+    private void setFanColor_UNABLE() {
+        r = 47f / 255f;
+        g = 151f / 255f;
+        b = 233f / 255f;
     }
 
     private void resetAll(){
         GAME_OVER = false;
         SHOW = false;
-        x = y = Rotate = 0f;
+        x = Rotate = 0f;
+        y = 0f;
         MOVE = false;
         TURN = false;
         DIR = map.RandomDir();
         count = deltaZ = 0;
         SPEED = 0.05f;
 
-        setLookAtM(viewMatrix, 0, 0f, 0f, 0.25f, 0f, 0f, 0f, 0f, 1f, 0f);
+        setLookAtM(viewMatrix, 0, 0f, 0f, 0.01f, 0f, 0f, 0f, 0f, 1f, 0f);
         rotateM(viewMatrix, 0, 90f, 1f, 0f, 0f);
     }
 
@@ -136,21 +142,25 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
                 if(GAME_OVER){
                     resetAll();
                 }
+                //else
+                    //ANIMATE = !ANIMATE;
             }
         }
         else if (MOVE){
-            if (y * SPEED >= 4.65f && y * SPEED < 6f && !TURN) {
+            if (y * SPEED >= 4.65f && y * SPEED < 5.5f && !TURN) {
                 if(normalizedX > 0 && DIR == 1){
                     Rotate = 10f;
-                    deltaZ = 90;
+                    deltaZ += 90;
                     TURN = true;
                     y = 5.25f / SPEED;
+                    Log.w("Control", "turn right");
                 }
                 else if(normalizedX < 0 && DIR == 2){
                     Rotate = -10f;
-                    deltaZ = 270;
+                    deltaZ -= 90;
                     TURN = true;
                     y = 5.25f / SPEED;
+                    Log.w("Control", "turn left");
                 }
                 else {  //Wrong direction
                     GAME_OVER = true;
@@ -195,7 +205,7 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
             orthoM(projectionMatrix, 0, -1f, 1f, -RATIO, RATIO, -1f, 1f);*/
 
         MatrixHelper.perspectiveM(projectionMatrix, 90, (float)width / (float)height, 0f, 10f);
-        setLookAtM(viewMatrix, 0, 0f, 0f, 0.25f, 0f, 0f, 0f, 0f, 1f, 0f);
+        setLookAtM(viewMatrix, 0, 0f, 0f, 0.01f, 0f, 0f, 0f, 0f, 1f, 0f);
         rotateM(viewMatrix, 0, 90f, 1f, 0f, 0f);
     }
 
@@ -203,40 +213,57 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl10) {
         // Clear the rendering surface.
         glClear(GL_COLOR_BUFFER_BIT);
-
-        if( y * SPEED >= 6f){  // out of range
-            GAME_OVER = true;
-            MOVE = false;
-        }
-
-        if((Math.abs(x)) * SPEED > 0f /*&& (Math.abs(x)) * SPEED >= 6.2f*/){
-            TURN = false;
-            deltaZ = 0;
-
-            x = 0f;
-            if(count % 5 != 0){
-                y = (int)(Math.random() * 1000f) % (int)( count / 5 <= 5 ? 4f / SPEED : 2.5 / SPEED);
-                Log.w("RandomY", String.valueOf(y) + " " + String.valueOf(y * SPEED) + " " + String.valueOf(SPEED) );
+        if(ANIMATE){
+            if(y * SPEED >= 5f && y * SPEED <= 5.3f && !TURN){
+                Rotate = DIR == 1 ? 10f : -10f;
+                deltaZ = DIR == 1 ? 90 : 270;
+                y = 5.25f / SPEED;
+                TURN = !TURN;
             }
-            else y = 0f;
-            setLookAtM(viewMatrix, 0, 0f, 0f, 0.01f, 0f, 0f, 0f, 0f, 1f, 0f);
-            rotateM(viewMatrix, 0, 90f, 1f, 0f, 0f);
-
-            DIR = map.RandomDir();
-
-            count += 1;
-
-            if(count % 5 == 0 && SPEED < 0.25) {
-                SPEED += 0.025;
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(context, "Level " + String.valueOf(count / 5 + 1), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            if(Rotate == 0f && y == 5.25f / SPEED){
+                resetAll();
+                /*x = 0f;
+                deltaZ = 0;
+                y = (int)(Math.random() * 1000f) % (int)(3.5f / SPEED);
+                setLookAtM(viewMatrix, 0, 0f, 0f, 0.01f, 0f, 0f, 0f, 0f, 1f, 0f);
+                rotateM(viewMatrix, 0, 90f, 1f, 0f, 0f);
+                DIR = map.RandomDir();
+                TURN = !TURN;*/
             }
         }
+        else{
+            if( y * SPEED >= 5.5f){  // out of range
+                GAME_OVER = true;
+                MOVE = false;
+            }
 
+            if((Math.abs(x)) * SPEED > 0f /*&& (Math.abs(x)) * SPEED >= 6.2f*/){
+                TURN = false;
+                deltaZ = 0;
+
+                x = 0f;
+                if(count % 5 != 0){
+                    y = (int)(Math.random() * 1000f) % (int)( count / 5 + 1 <= 5 ? 3.5f / SPEED : 2.5 / SPEED);
+                }
+                else y = 0f;
+                setLookAtM(viewMatrix, 0, 0f, 0f, 0.01f, 0f, 0f, 0f, 0f, 1f, 0f);
+                rotateM(viewMatrix, 0, 90f, 1f, 0f, 0f);
+
+                DIR = map.RandomDir();
+
+                count += 1;
+
+                if(count % 5 == 0 && SPEED < 0.25) {
+                    SPEED += 0.02;
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, "Level " + String.valueOf(count / 5 + 1), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        }
 
         if(Rotate != 0f){
             rotateM(viewMatrix, 0, (90f/10f) * (Rotate > 0 ? -1f : 1f), 0f, 0f, 1f);
@@ -253,16 +280,17 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
         map.bindData(colorProgram);
 
 
-        if(MOVE) setBlack();
+        if(MOVE || ANIMATE) setBlack();
         else setWhite();
         colorProgram.setUniforms(modelViewProjectionMatrix, r, g, b);
         map.drawLine();
 
-        setFanColor();
+        if(MOVE || ANIMATE) setFanColor_ENABLE();
+        else setFanColor_UNABLE();
         colorProgram.setUniforms(modelViewProjectionMatrix, r, g, b);
         map.drawTriangleFan();
 
-        if(MOVE) setBlack();
+        if(MOVE || ANIMATE) setBlack();
         else setWhite();
         colorProgram.setUniforms(modelViewProjectionMatrix, r, g, b);
         map.drawLine_v();
@@ -277,16 +305,6 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
                 }
             });
         }
-
-        /*
-        colorProgram.setUniforms(modelViewProjectionMatrix, 1f, 0f, 0f);
-        axis.bindData(colorProgram);
-        axis.drawX();
-        colorProgram.setUniforms(modelViewProjectionMatrix, 0f, 0f, 1f);
-        axis.drawY();
-        colorProgram.setUniforms(modelViewProjectionMatrix, 0f, 1f, 0f);
-        axis.drawZ();
-        */
     }
 
 
@@ -295,18 +313,16 @@ public class RunnerRenderer implements GLSurfaceView.Renderer {
         // 90 degrees to lie flat on the XZ plane.
         setIdentityM(modelMatrix, 0);
 
-        if(MOVE && Rotate == 0){
+        if((MOVE  || ANIMATE)&& Rotate == 0){
             if(deltaZ == 0 || deltaZ == 180){
                 if(!TURN)
                     y += 1f;
             }
-            else if (deltaZ == 90 || deltaZ == 270)
+            else if (deltaZ == 90 || deltaZ == -90)
                 x += deltaZ == 90 ? -1f : 1f;
-
-            //Log.w("Renderer", String.valueOf(DIR) + " " + String.valueOf(y * SPEED) + " " +String.valueOf(y));
         }
-
-        translateM(modelMatrix, 0, x * SPEED, y * SPEED >= 6 ? 5f : y * SPEED, 0f);
+        Log.w("Renderer", String.valueOf(SPEED) + " " + String.valueOf(y));
+        translateM(modelMatrix, 0, x * SPEED, y * SPEED >= 5.5 ? 5f : y * SPEED, 0f);
 
         multiplyMM(modelViewProjectionMatrix, 0, viewProjectionMatrix,
                 0, modelMatrix, 0);

@@ -58,6 +58,10 @@ public class Map {
             -0.2f, -5.5f, 0.15f, //20
             -0.2f, -5.5f, -0.15f,
 
+            0.2f, -5f, -0.15f, //22
+            0.2f, -5f, 0.15f,
+
+
     };
     private static final float[] VERTEX_DATA_L = {
             0.2f, -5.5f, -0.15f,
@@ -86,6 +90,9 @@ public class Map {
 
             0.2f, -5.5f, 0.15f, //20
             0.2f, -5.5f, -0.15f,
+
+            -0.2f, -5f, 0.15f, //20
+            -0.2f, -5f, -0.15f,
     };
 
     private VertexArray vertexArray;
@@ -108,7 +115,7 @@ public class Map {
     }
     public void drawLine(){
 
-        glLineWidth(5f);
+        glLineWidth(10f);
        // glDrawArrays(GL_LINES, 20, 2);
         //glDrawArrays(GL_LINES, 22, 2);
 
@@ -126,8 +133,9 @@ public class Map {
     }
 
     public void drawLine_v(){
-        glLineWidth(2.5f);
+        glLineWidth(5f);
         glDrawArrays(GL_LINES, 20, 2);
+        glDrawArrays(GL_LINES, 22, 2);
     }
 
     public void drawTriangleFan(){
