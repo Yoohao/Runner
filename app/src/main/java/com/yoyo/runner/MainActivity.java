@@ -18,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
 
     private GLSurfaceView glSurfaceView;
     private boolean rendererSet = false;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
